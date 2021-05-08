@@ -1,7 +1,10 @@
+from typing import Tuple
+
+
 class LogStruct:
     '''class log nginx or apache server structure'''
 
-    def __getmonths(self, monthname):
+    def __getmonths(self, monthname: str) -> str:
         '''return number of month'''
         months = {
             "Jan": "01",
@@ -19,7 +22,7 @@ class LogStruct:
         }
         return months[monthname]
 
-    def __formatdate(self, datetime):
+    def __formatdate(self, datetime: str) -> Tuple[str, int, str]:
         '''return list with parsed time,zone,date'''
         slash = datetime.find('/')
         day = datetime[:slash]
@@ -37,20 +40,22 @@ class LogStruct:
         date = year + '-' + month + '-' + day
         return [time, zone, date]
 
-    def __init__(self, ip, user, datetime, request, response, bytesSent, referer, browser):
-        self.ip = ip
-        self.user = user
-        self.request = request
-        self.response = response
-        self.bytesSent = bytesSent
-        self.referer = referer
-        self.browser = browser
-        resdatetime = self.__formatdate(datetime)
-        self.time = resdatetime[0]
-        self.zone = resdatetime[1]
-        self.date = resdatetime[2]
+    def __init__(self, ip: str, user: str, datetime: str, request: str, response: str, bytesSent: str, referer: str,
+                 browser: str) -> None:
+        self.ip: str = ip
+        self.user: str = user
+        self.request: str = request
+        self.response: str = response
+        self.bytesSent: str = bytesSent
+        self.referer: str = referer
+        self.browser: str = browser
+        resdatetime: str = self.__formatdate(datetime)
+        self.time: str = resdatetime[0]
+        self.zone: int = resdatetime[1]
+        self.date: str = resdatetime[2]
 
-    def __len__(self):
+    def __len__(self) -> int:
+        ":return num of fields of structure"
         return 10
 
     def __getitem__(self, item):
@@ -69,10 +74,4 @@ class LogStruct:
         return nowlist[item]
 
     def __str__(self):
-        delim = '|'
-        return "{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}{9}{0}{10}\n".format(delim, self.ip, self.user,
-                                                                                     self.date,
-                                                                                     self.time, self.zone,
-                                                                                     self.request, self.response,
-                                                                                     self.bytesSent,
-                                                                                     self.referer, self.browser)
+        return f"{self.ip}|{self.user}|{self.date}|{self.time}|{self.zone}|{self.request}|{self.response}|{self.bytesSent}|{self.referer}|{self.browser}\n"
