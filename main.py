@@ -1,3 +1,4 @@
+#! /usr/bin/python3.8
 from ParserLogs.filereader import FileReader
 from ParserLogs.parser import CommonLogsParser, AbstractParser
 from ParserLogs.filewriter import FileWriter
