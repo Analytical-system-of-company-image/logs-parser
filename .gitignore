@@ -270,3 +270,5 @@ Thumbs.db
 
 .idea
 logs
+.env
+.docker

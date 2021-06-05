@@ -7,26 +7,42 @@ import click
 from .filter import Filter
 
 
+
 class AbstractParser(ABC):
     @abstractmethod
     def parsefile(self, listlogs):
         pass
 
 
+class ResultGoodBadLogs():
+    '''Result DTO object class'''
+
+    def __init__(self, parsed_logs: List[LogStruct], incompleted_logs: List[str]):
+        self.__good_logs = parsed_logs
+        self.__bad_logs = incompleted_logs
+
+    def get_good_logs(self) -> List[LogStruct]:
+        return self.__good_logs
+
+    def get_bad_logs(self) -> List[str]:
+        return self.__bad_logs
+
+
 class CommonLogsParser(AbstractParser):
     '''class for parsing coommon logs to logstructure'''
 
     def __init__(self, filter: Filter) -> None:
-        self.filter = filter
+        self.filter: Filter = filter
         self.NUM_FIELDS = 9
         # Format common logs
         self.pattern = re.compile(
             "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(.+?)\" (\\d{3}) (\\d+) \"([^\"]+)\" \"([^\"]+)\"")
 
-    def parsefile(self, listlogs: List[str]) -> Tuple[List[LogStruct], List[str]]:
+    def parsefile(self, listlogs: List[str]) -> ResultGoodBadLogs:
         '''return list with list of corrected and filtered logs and list of incorrect logs'''
-        parsedlogs: LogStruct = []
-        incomletelogs: str = []
+        parsedlogs: List[LogStruct] = []
+        incomletelogs: List[str] = []
+        print("Logs parsing:")
         with click.progressbar(listlogs) as bar:
             for i in bar:
                 p = re.match(self.pattern, i)
@@ -44,4 +60,5 @@ class CommonLogsParser(AbstractParser):
                 else:
                     incomletelogs.append(i + ":Don't match\n")
                 bar.next
-        return [parsedlogs, incomletelogs]
+
+        return ResultGoodBadLogs(parsedlogs, incomletelogs)
