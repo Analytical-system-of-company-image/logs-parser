@@ -43,30 +43,6 @@ class CSVWriter(AbstractWriter):
                     for i in bar:
                         writer.writerow([i])
 
-
-class TXTWriter(AbstractWriter):
-
-    def write(self, logs: ResultGoodBadLogs, prefixname='logs', write_bad_logs=False) -> None:
-        '''write los to txt log file'''
-        good_logs = logs.get_good_logs()
-        count = len(good_logs)
-        filename = "good_" + prefixname + ":" + str(count) + ":" + str(datetime.date.today()) + ".log"
-        with open(filename, 'w', newline='') as file:
-            print("Writing good logs to TXT:")
-            with click.progressbar(good_logs) as bar:
-                for i in bar:
-                    file.write(str(i))
-        if write_bad_logs:
-            bad_logs = logs.get_bad_logs()
-            count = len(bad_logs)
-            filename = "bad_" + prefixname + ":" + str(count) + ":" + str(datetime.date.today()) + ".log"
-            with open(filename, 'w', newline='') as file:
-                print("Writing bad logs to TXT:")
-                with click.progressbar(bad_logs) as bar:
-                    for i in bar:
-                        file.write(i)
-
-
 class MongodbWriter:
     '''Class for writing logs to mongo db'''
 
