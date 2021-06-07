@@ -61,7 +61,8 @@ class MongodbWriter:
             count = 0
             for log in bar:
                 buf_good_logs.append(GoodLog(ip=log.ip, user=log.user, date=log.date, time=log.time, req=log.request,
-                                             res=int(log.response), byte_sent=int(log.bytesSent), referrer=log.referer))
+                                             res=int(log.response), byte_sent=int(log.bytesSent), referrer=log.referer,
+                                             zone=log.zone, browser=log.browser))
                 buf_good_logs[count].save()
                 count += 1
         if write_bad_logs:
