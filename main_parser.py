@@ -8,21 +8,25 @@ from typing import List
 
 if __name__ == '__main__':
     fr = FileReader()
-    datalogs = fr.readlogs('./logs/2020-03-16 - Архив логов с разными IP-адресами')
-    conditions: List[ConditionFilterAbstaract] = []
-    conditions.append(ConditionRobot())
-    conditions.append(ConditionPhp())
-    conditions.append(ConditionPng())
-    conditions.append(ConditionSvg())
-    conditions.append(ConditionJs())
-    conditions.append(ConditionCss())
-    conditions.append(ConditionPost())
-    conditions.append(ConditionWoff())
-    conditions.append(ConditionGz())
-    conditions.append(ConditionResponse())
-    conditions.append(ConditionHead())
-    filter = Filter(conditions)
-    commonLogsParser: AbstractParser = CommonLogsParser(filter)
-    result = commonLogsParser.parsefile(datalogs)
-    wr: AbstractWriter = MongodbWriter('server_logs', 'root', 'root', 27017)
-    wr.write(result)
+    try:
+        datalogs = fr.readlogs('./logs/2020-03-16 - Архив логов с разнми IP-адресами')
+    except Exception as e:
+        print("File doesn't exist!")
+    else:
+        conditions: List[ConditionFilterAbstaract] = []
+        conditions.append(ConditionRobot())
+        conditions.append(ConditionPhp())
+        conditions.append(ConditionPng())
+        conditions.append(ConditionSvg())
+        conditions.append(ConditionJs())
+        conditions.append(ConditionCss())
+        conditions.append(ConditionPost())
+        conditions.append(ConditionWoff())
+        conditions.append(ConditionGz())
+        conditions.append(ConditionResponse())
+        conditions.append(ConditionHead())
+        filter = Filter(conditions)
+        commonLogsParser: AbstractParser = CommonLogsParser(filter)
+        result = commonLogsParser.parsefile(datalogs)
+        wr: AbstractWriter = MongodbWriter('server_logs', 'root', 'root', 27017)
+        wr.write(result)

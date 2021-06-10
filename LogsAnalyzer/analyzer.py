@@ -22,12 +22,12 @@ class LogsAnalyzer:
         try:
             self.connect = DevelopingConfig(namedb, usr, pwd, port)
         except Exception as ex:
-            print('Не удалось подключиться к базе данных:', ex)
+            print('Failed to connect to database:', ex)
 
     def read_from_db(self) -> None:
         '''Read data from DB'''
         if self.connect is None:
-            raise Exception("Не подключена база данных")
+            raise Exception("Database not connected")
         else:
             logs = GoodLog.objects()
             return pd.DataFrame([log.to_dict() for log in logs])
