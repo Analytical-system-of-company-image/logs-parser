@@ -40,19 +40,20 @@ class LogStruct:
         date = year + '-' + month + '-' + day
         return [time, zone, date]
 
-    def __init__(self, ip: str, user: str, datetime: str, request: str, response: str, bytesSent: str, referer: str,
+    def __init__(self, ip: str, user: str, datetime: str,
+                 request: str, response: str, bytes_sent: str, referer: str,
                  browser: str) -> None:
-        self.ip: str = ip
+        self.ip_adress: str = ip
         self.user: str = user
         self.request: str = request
         self.response: str = response
-        self.bytesSent: str = bytesSent
+        self.bytesSent: str = bytes_sent
         self.referer: str = referer
         self.browser: str = browser
-        resdatetime: str = self.__formatdate(datetime)
-        self.time: str = resdatetime[0]
-        self.zone: int = resdatetime[1]
-        self.date: str = resdatetime[2]
+        res_date_time: str = self.__formatdate(datetime)
+        self.time: str = res_date_time[0]
+        self.zone: int = res_date_time[1]
+        self.date: str = res_date_time[2]
 
     def __len__(self) -> int:
         ":return num of fields of structure"
@@ -60,7 +61,7 @@ class LogStruct:
 
     def __getitem__(self, item):
         nowlist = []
-        nowlist.append(self.ip)
+        nowlist.append(self.ip_adress)
         nowlist.append(self.user)
         nowlist.append(self.date)
         nowlist.append(self.time)
@@ -74,4 +75,5 @@ class LogStruct:
         return nowlist[item]
 
     def __str__(self):
-        return f"{self.ip}|{self.user}|{self.date}|{self.time}|{self.zone}|{self.request}|{self.response}|{self.bytesSent}|{self.referer}|{self.browser}\n"
+        return f"{self.ip_adress}|{self.user}|{self.date}|{self.time}|{self.zone}|" \
+               f"{self.request}|{self.response}|{self.bytesSent}|{self.referer}|{self.browser}\n"

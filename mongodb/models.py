@@ -1,9 +1,11 @@
-from mongoengine import Document
-from mongoengine.fields import StringField, DateTimeField, DecimalField, FileField
-from datetime import datetime
 from typing import Dict
+from datetime import datetime
+from mongoengine.fields import StringField, DateTimeField, DecimalField, FileField
+from mongoengine.document import Document
+
 
 class GoodLog(Document):
+    '''Class with correct logs'''
     ip = StringField(required=True)
     user = StringField(required=True)
     date = DateTimeField(required=True)
@@ -16,6 +18,7 @@ class GoodLog(Document):
     zone = DecimalField(required=True)
 
     def to_dict(self) -> Dict:
+        ''':return dict from class object'''
         return {
             "IP": self.ip,
             "USER": self.user,
@@ -31,9 +34,11 @@ class GoodLog(Document):
 
 
 class BadLog(Document):
+    '''Class incorrect logs'''
     data = StringField(required=True)
 
 
 class ReportLogs(Document):
+    '''Class contains report pdf with plots'''
     pdf_file = FileField(required=True)
     date = DateTimeField(required=True, default=datetime.today())

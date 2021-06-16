@@ -1,11 +1,8 @@
 #! /usr/bin/python3.8
-from ParserLogs.logs_reader import FileReader
-from ParserLogs.parser import CommonLogsParser, AbstractParser
-from ParserLogs.filter import *
-from LogsAnalyzer.analyzer import LogsAnalyzer
-from ParserLogs.logs_writer import AbstractWriter, MongodbWriter, CSVWriter
-from LogsAnalyzer.plots import *
 from typing import List
+from logs_analyzer.analyzer import LogsAnalyzer
+from logs_analyzer.plots import IpPlot, TimePlot, CountryPlot, \
+    RegionPlot, PopularRegionsPlot, AbstractPlot
 
 if __name__ == '__main__':
 
