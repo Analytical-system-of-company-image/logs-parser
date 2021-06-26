@@ -42,3 +42,11 @@ class ReportLogs(Document):
     '''Class contains report pdf with plots'''
     pdf_file = FileField(required=True)
     date = DateTimeField(required=True, default=datetime.today())
+
+
+class LogFile(Document):
+    '''Class contains prepared files'''
+    filename = StringField(required=True)
+    persent_filtered = DecimalField(required=True)
+    time_parsing = DecimalField(required=True)
+    date_parsing = DateTimeField(required=True, default=datetime.today())
