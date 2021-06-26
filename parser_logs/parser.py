@@ -31,6 +31,12 @@ class ResultGoodBadLogs():
         ''':return bad logs'''
         return self.__bad_logs
 
+    def get_len_good_log(self) -> int:
+        return len(self.__good_logs)
+
+    def get_len_bad_log(self) -> int:
+        return len(self.__bad_logs)
+
 
 class CommonLogsParser(AbstractParser):
     '''class for parsing coommon logs to logstructure'''
