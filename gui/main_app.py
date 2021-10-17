@@ -65,7 +65,10 @@ class MainApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.open_button_3.setEnabled(True)
             self.process_button_3.setEnabled(True)
             self.config.connect_db()
-            self.__set_dates()
+            try:
+                self.__set_dates()
+            except:
+                pass
             data = self.__read_from_db()
             if not data:
                 self.tab_two.setEnabled(False)
@@ -201,21 +204,27 @@ class MainApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             start = time.process_time()
             result = common_logs_parser.parsefile(data_logs)
             end = time.process_time()
-            length_filtered = result.get_len_good_log()
-            self.add_line_output(f"Percentage of records filtered"
-                                 f":{length_filtered / length_unfiltered * 100}%")
-            self.add_line_output(f"Time:{end - start}")
+            len_good_logs = result.get_len_good_log()
+            if len_good_logs == 0:
+                self.add_line_output("Bad file. Don't contains logs by default format")
+                self.__show_error_window("Bad file. Don't contains logs by default format")
+            else:
+                length_filtered = result.get_len_good_log()
+                self.add_line_output(f"Percentage of records filtered"
+                                     f":{length_filtered / length_unfiltered * 100}%")
+                self.add_line_output(f"Time:{end - start}")
 
-            file_name = os.path.basename(self.path)
-            new_file_log = LogFile(filename=file_name,
-                                   persent_filtered=length_filtered / length_unfiltered * 100,
-                                   time_parsing=end - start)
-            new_file_log.save()
-            self.__write(result)
-            self.add_line_output("The addition to the database is complete")
-            self.prepared = True
-            log_files = LogFile.objects()
-            self.__load_data_table(log_files)
+                file_name = os.path.basename(self.path)
+                new_file_log = LogFile(filename=file_name,
+                                       persent_filtered=length_filtered / length_unfiltered * 100,
+                                       time_parsing=end - start)
+                new_file_log.save()
+                self.__write(result)
+                self.add_line_output("The addition to the database is complete")
+                self.prepared = True
+                log_files = LogFile.objects()
+                self.__load_data_table(log_files)
+                self.__set_alignment_table_columns()
         else:
             self.add_line_output("Data already prepared.Please load other file")
 
@@ -274,8 +283,8 @@ class MainApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def __load_data_table(self, data: List[LogFile]) -> None:
         '''Load MyMp3 files to table widget'''
-
         table = self.table
+        table.setRowCount(0)
         for item in data:
             row = table.rowCount()
             table.setRowCount(row + 1)

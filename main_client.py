@@ -20,6 +20,7 @@ if __name__ == '__main__':
         format="%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
         datefmt='%H:%M:%S',
     )
+    logging.disable()
 
     wr: AbstractWriter = MongodbWriter('server_logs', 'root', 'root', 27017)
     file_path = input("Path to file with logs:")

@@ -12,7 +12,7 @@ from parser_logs.logs_writer import AbstractWriter, MongodbWriter
 if __name__ == '__main__':
     wr: AbstractWriter = MongodbWriter('server_logs', 'root', 'root', 27017)
     try:
-        data_logs = readlogs('logs/2020-03-16 - Архив логов с разными IP-адресами')
+        data_logs = readlogs('logs/logs-2020-03-16.log')
     except FileExistsError:
         print("File doesn't exist!")
     else:
