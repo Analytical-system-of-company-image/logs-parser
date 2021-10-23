@@ -49,4 +49,7 @@ split_logs.py - script for splitting a large file into small ones
 
 ![image](https://user-images.githubusercontent.com/25473820/138544117-9b6c7e76-af6e-443a-a1ab-a08eec31b344.png)
 
+## UML diagram
+
+![image](https://user-images.githubusercontent.com/25473820/138544987-9a0e92aa-5bf8-4589-bdab-12bbd741b155.png)
 
