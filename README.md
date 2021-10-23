@@ -37,3 +37,16 @@ pyproject.toml
 split_logs.py - script for splitting a large file into small ones
 ```
 ***
+## Arhitecture contex diagram
+
+![image](https://user-images.githubusercontent.com/25473820/138543868-2eca1741-7ae4-47ba-bd86-05437461cb20.png)
+
+## Arhitecture contex diagram subsystem analyzing logs
+
+![image](https://user-images.githubusercontent.com/25473820/138544040-7a3b44d3-ab84-49d1-a2ca-c6c97add5184.png)
+
+## Arhitecture contex diagram subsystem parsing logs
+
+![image](https://user-images.githubusercontent.com/25473820/138544117-9b6c7e76-af6e-443a-a1ab-a08eec31b344.png)
+
+
