@@ -1,5 +1,5 @@
 # LogsParser
-Apache log parser
+Common log parser and analyzer
 
 ## Project structure
 
