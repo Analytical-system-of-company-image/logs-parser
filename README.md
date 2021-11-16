@@ -27,6 +27,9 @@ Common log parser and analyzer
     logs_reader.py - function for reading logs
     logs_writer.py - different functions for writining to txt, csv, ...
     parser.py - file contains class for parsing logs
+\sciprts
+    split_logs.py - script for splitting a large file into small ones
+    unite_logs.py - little console tool for uniting logs files into one big log file
 .gitignore
 docker-compose.yml
 main_analyzer.py - entry point for logs analyzing (console interface)
@@ -34,7 +37,7 @@ main_client.py - entry point for logs parsing and analyzing (console interface)
 main_parser.py - entry point for log parsing (console interface)
 poetry.lock
 pyproject.toml
-split_logs.py - script for splitting a large file into small ones
+
 ```
 ***
 ## Arhitecture contex diagram
