@@ -14,7 +14,7 @@ class DevelopingConfig():
     def check_connection(self) -> bool:
         '''check connection for database'''
         try:
-            connect("testdb", host="mongodb://" + self.username
+            connect("server_logs", host="mongodb://" + self.username
                                    + ":" + self.password + "@localhost:"
                                    + str(self.port) + '/?authSource=admin')
             data_base = get_db()

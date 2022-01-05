@@ -273,3 +273,5 @@ logs
 .env
 .docker
 .pdf
+datasets
+.vscode

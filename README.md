@@ -3,6 +3,16 @@ Common log parser and analyzer
 
 ## Project structure
 
+## How to deploy
+```
+poetry shell
+poetry install
+docker-compose up -d
+docker exec -it server_logs bash
+mongo -u root -p root
+exit
+```
+
 ***
 ```
 \docs - contains docs files (uml and etc)
