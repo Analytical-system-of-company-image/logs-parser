@@ -1,34 +1,37 @@
-#! /usr/bin/python3.8
+import logging
 from typing import List
-from parser_logs.logs_reader import readlogs
-from parser_logs.parser import CommonLogsParser, AbstractParser
-from parser_logs.filter import ConditionGz, \
-    ConditionJs, ConditionResponse, ConditionPhp, ConditionSvg, \
-    ConditionRobot, ConditionHead, ConditionPost, ConditionWoff, \
-    ConditionPng, ConditionCss, ConditionFilterAbstract, Filter
 
+from tqdm import tqdm
+
+from parser_logs.filter import (ConditionCss, ConditionFilterAbstract,
+                                ConditionGz, ConditionHead, ConditionJs,
+                                ConditionPhp, ConditionPng, ConditionPost,
+                                ConditionResponse, ConditionSvg, ConditionWoff,
+                                Filter)
+from parser_logs.logs_reader import read_logs
 from parser_logs.logs_writer import AbstractWriter, MongodbWriter
+from parser_logs.parser import AbstractParser, CommonLogsParser
+
+SIZE_CHUNK = 500000
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG,
+                        filename='parsing_logs.log', filemode='w')
     wr: AbstractWriter = MongodbWriter('server_logs', 'root', 'root', 27017)
-    try:
-        data_logs = readlogs('logs/logs-2020-03-16.log')
-    except FileExistsError:
-        print("File doesn't exist!")
-    else:
-        conditions: List[ConditionFilterAbstract] = []
-        conditions.append(ConditionRobot())
-        conditions.append(ConditionPhp())
-        conditions.append(ConditionPng())
-        conditions.append(ConditionSvg())
-        conditions.append(ConditionJs())
-        conditions.append(ConditionCss())
-        conditions.append(ConditionPost())
-        conditions.append(ConditionWoff())
-        conditions.append(ConditionGz())
-        conditions.append(ConditionResponse())
-        conditions.append(ConditionHead())
-        logs_filter = Filter(conditions)
-        commonLogsParser: AbstractParser = CommonLogsParser(logs_filter)
-        result = commonLogsParser.parsefile(data_logs)
-        wr.write(result)
+    conditions: List[ConditionFilterAbstract] = []
+    conditions.append(ConditionPhp())
+    conditions.append(ConditionPng())
+    conditions.append(ConditionSvg())
+    conditions.append(ConditionJs())
+    conditions.append(ConditionCss())
+    conditions.append(ConditionPost())
+    conditions.append(ConditionWoff())
+    conditions.append(ConditionGz())
+    conditions.append(ConditionResponse())
+    conditions.append(ConditionHead())
+    logs_filter = Filter(conditions)
+    commonLogsParser: AbstractParser = CommonLogsParser(logs_filter)
+    for chunk_logs in tqdm(read_logs('scripts/unite_logs.pyoutput.log', SIZE_CHUNK)):
+        parsed_logs = commonLogsParser.parsefile(chunk_logs)
+        wr.write(parsed_logs, True)
+        del parsed_logs
