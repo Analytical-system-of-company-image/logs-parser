@@ -168,6 +168,14 @@ class LogsAnalyzer:
         return grade
 
     def __unique_hits_per_day_crawlers(self, df: DataFrame) -> float:
+        """Unique hits per day crawlers grade
+
+        Args:
+            df (DataFrame): logs
+
+        Returns:
+            float: grade
+        """
         df = df.copy()
         only_crawlers = df[df['BROWSER'].str.contains('bot')]
         num_days = only_crawlers['DATE'].nunique()
@@ -183,6 +191,21 @@ class LogsAnalyzer:
             denominator = denominator + unique[i + 1]/num_days
         grade = numerator / denominator
 
+        return grade
+
+    def __bad_requests(self, good_requests: DataFrame, bad_requests: List[str]) -> float:
+        """Bad requests grade
+
+        Args:
+            good_requests (DataFrame): logs
+            bad_requests (List[str]): bad logs
+
+        Returns:
+            float: grade
+        """
+        num_good_requests = good_requests.shape[0]
+        num_bad_requests = len(bad_requests)
+        grade = 1 - (num_good_requests/num_bad_requests)
         return grade
 
     def analyze(self, data_frame: DataFrame):
