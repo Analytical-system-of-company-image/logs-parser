@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import IP2Location
+from pandas import DataFrame
 
 
 class AbstractPlot(ABC):
@@ -15,12 +16,13 @@ class AbstractPlot(ABC):
 class IpPlot(AbstractPlot):
     '''Class  Ip plot'''
 
-    def get_plt(self, data_frame):
+    def get_plt(self, data_frame: DataFrame):
         ''':return plt group count by ip'''
         group_by_ip = data_frame.loc[:, ['IP']]
         uniqip = group_by_ip.groupby(['IP'])['IP'].count()
         uniqip.to_frame()
-        _, my_axis = plt.subplots(1, 1, sharey=True, sharex=False, figsize=(20, 20), dpi=300)
+        _, my_axis = plt.subplots(
+            1, 1, sharey=True, sharex=False, figsize=(20, 20), dpi=300)
         my_axis.plot(uniqip)
         tick_spacing = 100
         my_axis.xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
@@ -32,13 +34,14 @@ class IpPlot(AbstractPlot):
 class TimePlot(AbstractPlot):
     '''Class all time plot'''
 
-    def get_plt(self, data_frame):
+    def get_plt(self, data_frame: DataFrame):
         ''':return plt group ip by time'''
         group_by_hour = data_frame.loc[:, ['TIME']]
         group_by_hour['TIME'] = data_frame['TIME'].dt.hour
         uniqh = group_by_hour.groupby(['TIME'])['TIME'].count()
         uniqh.to_frame()
-        _, my_axis = plt.subplots(1, 1, sharey=True, sharex=False, figsize=(10, 10), dpi=300)
+        _, my_axis = plt.subplots(
+            1, 1, sharey=True, sharex=False, figsize=(10, 10), dpi=300)
         my_axis.plot(uniqh)
         tick_spacing = 1
         my_axis.xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
@@ -49,10 +52,12 @@ class TimePlot(AbstractPlot):
 
 class CountryPlot(AbstractPlot):
     '''Class country plot'''
-    def __init__(self):
-        self.ip2loc_obj = IP2Location.IP2Location("logs_analyzer/data/IP2LOCATION-LITE-DB11.BIN")
 
-    def get_plt(self, data_frame):
+    def __init__(self):
+        self.ip2loc_obj = IP2Location.IP2Location(
+            "logs_analyzer/data/IP2LOCATION-LITE-DB11.BIN")
+
+    def get_plt(self, data_frame: DataFrame):
         ''':return plt group count by country'''
         group_by_area = data_frame.loc[:, ['IP']]
         uniqip = group_by_area.groupby('IP')['IP'].count()
@@ -60,7 +65,8 @@ class CountryPlot(AbstractPlot):
         uniqip['COUNTRY'] = [self.ip2loc_obj.get_country_short(i[0])
                              for i in uniqip.index.to_frame().values]
         uniqarea = uniqip.groupby('COUNTRY')['IP'].count()
-        _, my_axis = plt.subplots(1, 1, sharey=True, sharex=False, figsize=(10, 10), dpi=300)
+        _, my_axis = plt.subplots(
+            1, 1, sharey=True, sharex=False, figsize=(10, 10), dpi=300)
         my_axis.plot(uniqarea)
         tick_spacing = 1
         my_axis.xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
@@ -71,10 +77,12 @@ class CountryPlot(AbstractPlot):
 
 class RegionPlot(AbstractPlot):
     '''Class region plot'''
-    def __init__(self):
-        self.ip2loc_obj = IP2Location.IP2Location("logs_analyzer/data/IP2LOCATION-LITE-DB11.BIN")
 
-    def get_plt(self, data_frame):
+    def __init__(self):
+        self.ip2loc_obj = IP2Location.IP2Location(
+            "logs_analyzer/data/IP2LOCATION-LITE-DB11.BIN")
+
+    def get_plt(self, data_frame: DataFrame):
         ''':return plt group count by region'''
         group_by_area = data_frame.loc[:, ['IP', 'TIME']]
         group_by_area['COUNTRY'] = [self.ip2loc_obj.get_country_short(i)
@@ -84,7 +92,8 @@ class RegionPlot(AbstractPlot):
         group_by_area['REGION'] = [self.ip2loc_obj.get_region(i)
                                    for i in group_by_area['IP']]
         res_group_by_area = group_by_area.groupby('REGION')['IP'].count()
-        _, my_axis = plt.subplots(1, 1, sharey=True, sharex=False, figsize=(20, 15), dpi=300)
+        _, my_axis = plt.subplots(
+            1, 1, sharey=True, sharex=False, figsize=(20, 15), dpi=300)
         my_axis.plot(res_group_by_area)
         tick_spacing = 1
         my_axis.xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
@@ -96,9 +105,10 @@ class RegionPlot(AbstractPlot):
 class PopularRegionsPlot(AbstractPlot):
     '''Class pupular regions plot'''
 
-    def __init__(self, num_of_regions, time=10):
+    def __init__(self, num_of_regions: int, time=10):
         self.num_regions = num_of_regions
-        self.ip2loc_obj = IP2Location.IP2Location("logs_analyzer/data/IP2LOCATION-LITE-DB11.BIN")
+        self.ip2loc_obj = IP2Location.IP2Location(
+            "logs_analyzer/data/IP2LOCATION-LITE-DB11.BIN")
         self.time_zone = time
 
     def get_plt(self, data_frame):
@@ -115,11 +125,14 @@ class PopularRegionsPlot(AbstractPlot):
         group_by_area['TIMEZONE'] = [self.ip2loc_obj.get_timezone(i)
                                      for i in group_by_area['IP']]
         moda = group_by_area['TIMEZONE'].mode()
-        group_by_area['TIMEZONE'] = [time_zone_to_int(i, moda) for i in group_by_area['TIMEZONE']]
+        group_by_area['TIMEZONE'] = [time_zone_to_int(
+            i, moda) for i in group_by_area['TIMEZONE']]
         filter_ru = group_by_area['COUNTRY'] == 'RU'
         group_by_area = group_by_area.loc[filter_ru]
-        group_by_area['REGION'] = [self.ip2loc_obj.get_region(i) for i in group_by_area['IP']]
-        popular_list = group_by_area['REGION'].value_counts()[:self.num_regions].index.tolist()
+        group_by_area['REGION'] = [
+            self.ip2loc_obj.get_region(i) for i in group_by_area['IP']]
+        popular_list = group_by_area['REGION'].value_counts()[
+            :self.num_regions].index.tolist()
         plt_list = []
         for popular_elem in popular_list:
             filter_by_region = group_by_area['REGION'] == popular_elem
@@ -129,10 +142,12 @@ class PopularRegionsPlot(AbstractPlot):
             filter_by_region['TIME'] = filter_by_region['TIME']. \
                 apply(lambda x: (x - diff + 24) % 24)
             uniqh_region = filter_by_region.groupby(['TIME'])['TIME'].count()
-            _, my_axis = plt.subplots(1, 1, sharey=True, sharex=False, figsize=(20, 15), dpi=300)
+            _, my_axis = plt.subplots(
+                1, 1, sharey=True, sharex=False, figsize=(20, 15), dpi=300)
             my_axis.plot(uniqh_region)
             tick_spacing = 1
-            my_axis.xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
+            my_axis.xaxis.set_major_locator(
+                ticker.MultipleLocator(tick_spacing))
             plt.xticks(rotation=90)
             plt.title(popular_elem)
             plt_list.append(plt)
