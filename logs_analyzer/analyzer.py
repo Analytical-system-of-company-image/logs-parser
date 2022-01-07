@@ -137,9 +137,37 @@ class LogsAnalyzer:
 
         return grade
 
+    def __time_interests(self, df: DataFrame) -> float:
+        """Time intereset
+
+        Args:
+            df (DataFrame): logs
+
+        Returns:
+            float: grade
+        """
+        group_by_hour = df.loc[:, ['TIME']]
+        group_by_hour['TIME'] = df['TIME'].dt.hour
+        uniqh = group_by_hour.groupby(['TIME'])['TIME'].count()
+        uniqh.to_frame()
+        uniqh = uniqh.to_dict()
+        num_hours = len(uniqh)
+
+        part_1 = part_2 = part_3 = part_4 = 0
+        for num_hour, count_hour in uniqh.items():
+            part_1 += num_hour * count_hour
+            part_2 += num_hour
+            part_3 += count_hour
+            part_4 += num_hour * num_hour
+        enumerator = num_hours * part_1 - part_2 * part_3
+        denumerator = num_hours * part_4 - part_2 * part_2
+        grade = 1 - (enumerator / denumerator)
+
+        return grade
+
     def analyze(self, data_frame: DataFrame):
         '''':return pdf with graphics and push into BD'''
-
+        time_interests = self.__time_interests(data_frame)
         region_interests = self.__regional_interest(data_frame)
         unique_hits_per_day = self.__unique_hits_per_day(data_frame)
         now_date = str(datetime.now())
