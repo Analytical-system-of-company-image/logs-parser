@@ -165,11 +165,32 @@ class LogsAnalyzer:
 
         return grade
 
+    def __unique_hits_per_day_crawlers(self, df: DataFrame) -> float:
+        df = df.copy()
+        only_crawlers = df[df['BROWSER'].str.contains('bot')]
+        num_days = only_crawlers['DATE'].nunique()
+        df_groupby_date = only_crawlers.groupby('DATE').agg(
+            {"IP": lambda x: x.nunique()})
+        unique = df_groupby_date['IP'].values.tolist()
+
+        numerator = 0
+        denominator = unique[0] / num_days
+        for i in range(len(unique) - 1):
+            numerator = numerator + \
+                abs(unique[i] - unique[i+1]) / (num_days - 1)
+            denominator = denominator + unique[i + 1]/num_days
+        grade = numerator / denominator
+
+        return grade
+
     def analyze(self, data_frame: DataFrame):
         '''':return pdf with graphics and push into BD'''
+        unique_hits_per_day_crawlers = self.__unique_hits_per_day_crawlers(
+            data_frame)
         time_interests = self.__time_interests(data_frame)
         region_interests = self.__regional_interest(data_frame)
         unique_hits_per_day = self.__unique_hits_per_day(data_frame)
+        
         now_date = str(datetime.now())
         result_pdf = PdfPages(f'report-{now_date}.pdf')
         result_plots = []
