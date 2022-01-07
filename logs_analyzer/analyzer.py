@@ -87,6 +87,8 @@ class LogsAnalyzer:
         Returns:
             float: grade
         """
+        df = df.copy()
+        df = df[~df['BROWSER'].str.contains('bot')]
         num_days = df['DATE'].nunique()
         df_groupby_date = df.groupby('DATE').agg({"IP": lambda x: x.nunique()})
         unique = df_groupby_date['IP'].values.tolist()
@@ -190,7 +192,7 @@ class LogsAnalyzer:
         time_interests = self.__time_interests(data_frame)
         region_interests = self.__regional_interest(data_frame)
         unique_hits_per_day = self.__unique_hits_per_day(data_frame)
-        
+
         now_date = str(datetime.now())
         result_pdf = PdfPages(f'report-{now_date}.pdf')
         result_plots = []
