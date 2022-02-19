@@ -79,7 +79,7 @@ class LogsAnalyzer:
         return img
 
     def __unique_hits_per_day(self, df: DataFrame) -> float:
-        """Middle percent increase unique visits
+        """Middle percent increase unique visits (-sup,+sup)
 
         Args:
             df (DataFrame): logs
@@ -89,17 +89,16 @@ class LogsAnalyzer:
         """
         df = df.copy()
         df = df[~df['BROWSER'].str.contains('bot')]
-        num_days = df['DATE'].nunique()
         df_groupby_date = df.groupby('DATE').agg({"IP": lambda x: x.nunique()})
-        unique = df_groupby_date['IP'].values.tolist()
+        df_groupby_date.reset_index(inplace=True)
 
-        numerator = 0
-        denominator = unique[0] / num_days
-        for i in range(len(unique) - 1):
-            numerator = numerator + \
-                abs(unique[i] - unique[i+1]) / (num_days - 1)
-            denominator = denominator + unique[i + 1]/num_days
-        result_mark = numerator / denominator
+        df_groupby_date['fake'] = df_groupby_date['IP'].diff(
+            periods=-1).dropna()
+        numerator = df_groupby_date['fake'].sum()
+
+        denominator = df_groupby_date['IP'].sum()
+
+        result_mark = (numerator / denominator)
 
         return result_mark
 
@@ -210,11 +209,11 @@ class LogsAnalyzer:
 
     def analyze(self, data_frame: DataFrame):
         '''':return pdf with graphics and push into BD'''
+        unique_hits_per_day = self.__unique_hits_per_day(data_frame)
         unique_hits_per_day_crawlers = self.__unique_hits_per_day_crawlers(
             data_frame)
         time_interests = self.__time_interests(data_frame)
         region_interests = self.__regional_interest(data_frame)
-        unique_hits_per_day = self.__unique_hits_per_day(data_frame)
 
         now_date = str(datetime.now())
         result_pdf = PdfPages(f'report-{now_date}.pdf')
