@@ -88,6 +88,7 @@ class LogsAnalyzer:
             float: grade
         """
         df = df.copy()
+        df = df[df['RES'] == 200]
         df = df[~df['BROWSER'].str.contains('bot')]
         df_groupby_date = df.groupby('DATE').agg({"IP": lambda x: x.nunique()})
         df_groupby_date.reset_index(inplace=True)
@@ -103,7 +104,7 @@ class LogsAnalyzer:
         return result_mark
 
     def __regional_interest(self, df: DataFrame) -> float:
-        """Mark region interest interest
+        """Mark region interest interest [0;+sup]
 
         Args:
             df (DataFrame): logs
@@ -111,6 +112,8 @@ class LogsAnalyzer:
         Returns:
             float: grade
         """
+        df = df.copy()
+        df = df[df['RES'] == 200]
         ip2loc_obj = IP2Location.IP2Location(
             "logs_analyzer/data/IP2LOCATION-LITE-DB11.BIN")
         group_by_area = df.loc[:, ['IP', 'TIME']]
@@ -120,21 +123,12 @@ class LogsAnalyzer:
         group_by_area = group_by_area.loc[filter_ru]
         group_by_area['REGION'] = [ip2loc_obj.get_region(i)
                                    for i in group_by_area['IP']]
-        res_group_by_area = group_by_area.groupby('REGION')['IP'].count()
+        res_group_by_area = group_by_area.groupby(
+            'REGION')['IP'].agg(Count='count').reset_index()
 
-        regions = DataFrame(res_group_by_area)
-        num_regions = regions.shape[0]
-
-        part_1 = part_2 = part_3 = part_4 = 0
-        for num_region, region in enumerate(regions.iterrows()):
-            count_region = region[1].to_dict()['IP']
-            part_1 += num_region * count_region
-            part_2 += num_region
-            part_3 += count_region
-            part_4 += num_region * num_region
-        enumerator = num_regions * part_1 - part_2 * part_3
-        denumerator = num_regions * part_4 - part_2 * part_2
-        grade = 1 - (enumerator / denumerator)
+        std = res_group_by_area['Count'].std()
+        mean = res_group_by_area['Count'].mean()
+        grade = mean/std
 
         return grade
 
@@ -147,22 +141,16 @@ class LogsAnalyzer:
         Returns:
             float: grade
         """
+        df = df.copy()
+        df = df[df['RES'] == 200]
         group_by_hour = df.loc[:, ['TIME']]
         group_by_hour['TIME'] = df['TIME'].dt.hour
-        uniqh = group_by_hour.groupby(['TIME'])['TIME'].count()
-        uniqh.to_frame()
-        uniqh = uniqh.to_dict()
-        num_hours = len(uniqh)
+        uniqh = group_by_hour.groupby(['TIME'])['TIME'].agg(
+            Count='count').reset_index()
 
-        part_1 = part_2 = part_3 = part_4 = 0
-        for num_hour, count_hour in uniqh.items():
-            part_1 += num_hour * count_hour
-            part_2 += num_hour
-            part_3 += count_hour
-            part_4 += num_hour * num_hour
-        enumerator = num_hours * part_1 - part_2 * part_3
-        denumerator = num_hours * part_4 - part_2 * part_2
-        grade = 1 - (enumerator / denumerator)
+        std = uniqh['Count'].std()
+        mean = uniqh['Count'].mean()
+        grade = mean/std
 
         return grade
 
@@ -176,23 +164,23 @@ class LogsAnalyzer:
             float: grade
         """
         df = df.copy()
+        df = df[df['RES'] == 200]
         only_crawlers = df[df['BROWSER'].str.contains('bot')]
-        num_days = only_crawlers['DATE'].nunique()
         df_groupby_date = only_crawlers.groupby('DATE').agg(
             {"IP": lambda x: x.nunique()})
-        unique = df_groupby_date['IP'].values.tolist()
+        df_groupby_date.reset_index(inplace=True)
 
-        numerator = 0
-        denominator = unique[0] / num_days
-        for i in range(len(unique) - 1):
-            numerator = numerator + \
-                abs(unique[i] - unique[i+1]) / (num_days - 1)
-            denominator = denominator + unique[i + 1]/num_days
-        grade = numerator / denominator
+        df_groupby_date['fake'] = df_groupby_date['IP'].diff(
+            periods=-1).dropna()
+        numerator = df_groupby_date['fake'].sum()
 
-        return grade
+        denominator = df_groupby_date['IP'].sum()
 
-    def __bad_requests(self, good_requests: DataFrame, bad_requests: List[str]) -> float:
+        result_mark = (numerator / denominator)
+
+        return result_mark
+
+    def __bad_requests(self, df: DataFrame) -> float:
         """Bad requests grade
 
         Args:
@@ -202,18 +190,21 @@ class LogsAnalyzer:
         Returns:
             float: grade
         """
-        num_good_requests = good_requests.shape[0]
-        num_bad_requests = len(bad_requests)
-        grade = 1 - (num_good_requests/num_bad_requests)
-        return grade
+        num_all_requests = len(df)
+        num_bad_requests = len(df[df['RES'] != 200])
+
+        grade = num_bad_requests/num_all_requests
+        return 1/grade
 
     def analyze(self, data_frame: DataFrame):
         '''':return pdf with graphics and push into BD'''
+        vec = []
         unique_hits_per_day = self.__unique_hits_per_day(data_frame)
         unique_hits_per_day_crawlers = self.__unique_hits_per_day_crawlers(
             data_frame)
         time_interests = self.__time_interests(data_frame)
         region_interests = self.__regional_interest(data_frame)
+        bad_requests = self.__bad_requests(data_frame)
 
         now_date = str(datetime.now())
         result_pdf = PdfPages(f'report-{now_date}.pdf')

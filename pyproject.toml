@@ -5,7 +5,7 @@ description = "logs parser for web analitics"
 authors = ["DieNice <DailyPlanning@bk.ru>"]
 
 [tool.poetry.dependencies]
-python = "3.8"
+python = "^3.8"
 IP2Location = "^8.6.2"
 mongoengine = "^0.23.1"
 matplotlib = "^3.4.3"
@@ -20,6 +20,7 @@ ipython = "^7.29.0"
 pylint = "^2.11.1"
 autopep8 = "^1.6.0"
 tqdm = "^4.62.3"
+mypy = "^0.931"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
