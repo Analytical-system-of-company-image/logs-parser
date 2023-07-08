@@ -49,3 +49,11 @@ poetry install
 ## UML diagram
 
 ![image](https://user-images.githubusercontent.com/25473820/138544987-9a0e92aa-5bf8-4589-bdab-12bbd741b155.png)
+
+## How to public to Pypi
+First you need create api on pypi
+
+```bash
+poetry config pypi-token.pypi $(cat .token)
+poetry publish --build
+```

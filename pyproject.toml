@@ -1,9 +1,10 @@
 [tool.poetry]
-name = "logsparser"
-version = "0.1.0"
-description = ""
+name = "logsparsersubsystem"
+version = "1.0.1"
+description = "logs parsing subsystem library for airflow"
 authors = ["DieNice <DailyPlanning@bk.ru>"]
 readme = "README.md"
+packages = [{include = "logs_parser"},{ include ="README.md"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
