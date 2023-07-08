@@ -11,6 +11,8 @@ ip2location = "^8.10.0"
 pandas = "^2.0.3"
 pillow = "^10.0.0"
 click = "^8.1.4"
+matplotlib = "^3.7.2"
+requests = "^2.31.0"
 
 
 [tool.poetry.group.dev.dependencies]
