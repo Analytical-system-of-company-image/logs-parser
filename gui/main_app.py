@@ -15,7 +15,7 @@ from PIL.ImageQt import ImageQt
 from PIL import Image
 from gui import design
 
-from parser_logs.logs_reader import readlogs
+from parser_logs.logs_reader import read_logs
 from parser_logs.parser import AbstractParser, ResultGoodBadLogs
 from parser_logs.log_structure import LogStruct
 from parser_logs.filter import ConditionGz, \
@@ -184,7 +184,7 @@ class MainApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             msg.setWindowTitle("Error")
             msg.exec_()
         elif not self.prepared:
-            data_logs = readlogs(self.path)
+            data_logs = read_logs(self.path)
             length_unfiltered = len(data_logs)
             self.add_line_output("File open and read successfully")
             conditions: List[ConditionFilterAbstract] = []

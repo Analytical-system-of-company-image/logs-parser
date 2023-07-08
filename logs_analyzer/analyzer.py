@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List
 
 import IP2Location
+import numpy as np
 import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 from mongodb.config import DevelopingConfig
@@ -114,6 +115,7 @@ class LogsAnalyzer:
         """
         df = df.copy()
         df = df[df['RES'] == 200]
+        df = df[~df['BROWSER'].str.contains('bot')]
         ip2loc_obj = IP2Location.IP2Location(
             "logs_analyzer/data/IP2LOCATION-LITE-DB11.BIN")
         group_by_area = df.loc[:, ['IP', 'TIME']]
@@ -143,6 +145,7 @@ class LogsAnalyzer:
         """
         df = df.copy()
         df = df[df['RES'] == 200]
+        df = df[~df['BROWSER'].str.contains('bot')]
         group_by_hour = df.loc[:, ['TIME']]
         group_by_hour['TIME'] = df['TIME'].dt.hour
         uniqh = group_by_hour.groupby(['TIME'])['TIME'].agg(
@@ -205,6 +208,14 @@ class LogsAnalyzer:
         time_interests = self.__time_interests(data_frame)
         region_interests = self.__regional_interest(data_frame)
         bad_requests = self.__bad_requests(data_frame)
+
+        vec.append(unique_hits_per_day_crawlers)
+        vec.append(unique_hits_per_day)
+        vec.append(time_interests)
+        vec.append(region_interests)
+        vec.append(bad_requests)
+        x = np.array(vec)
+        res_grade = np.sqrt(x.dot(x))
 
         now_date = str(datetime.now())
         result_pdf = PdfPages(f'report-{now_date}.pdf')

@@ -1,7 +1,7 @@
 #! /usr/bin/python3.8
 from typing import List
 import logging
-from parser_logs.logs_reader import readlogs
+from parser_logs.logs_reader import read_logs
 from parser_logs.parser import CommonLogsParser, AbstractParser
 from parser_logs.filter import ConditionGz, \
     ConditionJs, ConditionResponse, ConditionPhp, ConditionSvg, \
@@ -22,10 +22,10 @@ if __name__ == '__main__':
     )
     logging.disable()
 
-    wr: AbstractWriter = MongodbWriter('server_logs', 'root', 'root', 27017)
+    wr: AbstractWriter = MongodbWriter('server_logs', 'root', 'password', 27017)
     file_path = input("Path to file with logs:")
     try:
-        data_logs = readlogs(file_path)
+        data_logs = read_logs(file_path)
         logging.info("File open and read successfully")
     except FileExistsError:
         print("File doesn't exist!")

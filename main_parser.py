@@ -27,11 +27,11 @@ if __name__ == '__main__':
     conditions.append(ConditionPost())
     conditions.append(ConditionWoff())
     conditions.append(ConditionGz())
-    conditions.append(ConditionResponse())
+    # conditions.append(ConditionResponse())
     conditions.append(ConditionHead())
     logs_filter = Filter(conditions)
     commonLogsParser: AbstractParser = CommonLogsParser(logs_filter)
-    for chunk_logs in tqdm(read_logs('scripts/unite_logs.pyoutput.log', SIZE_CHUNK)):
+    for chunk_logs in tqdm(read_logs('dataset_gorod.log', SIZE_CHUNK)):
         parsed_logs = commonLogsParser.parsefile(chunk_logs)
         wr.write(parsed_logs, True)
         del parsed_logs
