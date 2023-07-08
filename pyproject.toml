@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "logsparsersubsystem"
-version = "1.0.1"
+version = "1.0.2"
 description = "logs parsing subsystem library for airflow"
 authors = ["DieNice <DailyPlanning@bk.ru>"]
 readme = "README.md"
