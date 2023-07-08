@@ -51,7 +51,7 @@ class LogsAnalyzer:
         df = df[df['RES'] == 200]
         df = df[~df['BROWSER'].str.contains('bot')]
         ip2loc_obj = IP2Location.IP2Location(
-            "logs_analyzer/data/IP2LOCATION-LITE-DB11.BIN")
+            "logs_parser/analyzer/data/IP2LOCATION-LITE-DB11.BIN")
         group_by_area = df.loc[:, ['IP', 'TIME']]
         group_by_area['COUNTRY'] = [ip2loc_obj.get_country_short(i)
                                     for i in group_by_area['IP']]

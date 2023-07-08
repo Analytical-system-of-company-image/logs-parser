@@ -1,8 +1,9 @@
 import logging
 import random
 import tempfile
-from typing import Callable, List
+from typing import Any, Callable, Dict, List
 
+import pandas as pd
 import requests
 from tqdm import tqdm
 
@@ -24,35 +25,35 @@ def extract_random_logs() -> str:
     Returns:
         str: Название логов
     """
-    logs = ["access.log-20210208", "access.log-20210209",
-            "access.log-20210210", "access.log-20210211",
-            "access.log-20210212", "access.log-20210213",
-            "access.log-20210214", "access.log-20210215",
-            "access.log-20210216", "access.log-20210217",
-            "access.log-20210218", "access.log-20210219",
-            "access.log-20210220", "access.log-20210221",
-            "access.log-20210222", "access.log-20210223",
-            "access.log-20210224", "access.log-20210225",
-            "access.log-20210226", "access.log-20210227",
-            "access.log-20210228", "access.log-20210301",
-            "access.log-20210302", "access.log-20210303",
-            "access.log-20210304", "access.log-20210305",
-            "access.log-20210306", "access.log-20210307",
-            "access.log-20210308", "access.log-20210309",
-            "access.log-20210310", "access.log-20210311",
-            "access.log-20210312", "access.log-20210313",
-            "access.log-20210314", "access.log-20210315",
-            "access.log-20210316", "access.log-20210317",
-            "access.log-20210318", "access.log-20210319",
-            "access.log-20210320", "access.log-20210321",
-            "access.log-20210322", "access.log-20210323",
-            "access.log-20210324", "access.log-20210325",
-            "access.log-20210326", "access.log-20210327",
-            "access.log-20210328", "access.log-20210329",
-            "access.log,-20210330", "access.log-20210331"]
+    logs = ["fixed_access.log-20210208", "fixed_access.log-20210209",
+            "fixed_access.log-20210210", "fixed_access.log-20210211",
+            "fixed_access.log-20210212", "fixed_access.log-20210213",
+            "fixed_access.log-20210214", "fixed_access.log-20210215",
+            "fixed_access.log-20210216", "fixed_access.log-20210217",
+            "fixed_access.log-20210218", "fixed_access.log-20210219",
+            "fixed_access.log-20210220", "fixed_access.log-20210221",
+            "fixed_access.log-20210222", "fixed_access.log-20210223",
+            "fixed_access.log-20210224", "fixed_access.log-20210225",
+            "fixed_access.log-20210226", "fixed_access.log-20210227",
+            "fixed_access.log-20210228", "fixed_access.log-20210301",
+            "fixed_access.log-20210302", "fixed_access.log-20210303",
+            "fixed_access.log-20210304", "fixed_access.log-20210305",
+            "fixed_access.log-20210306", "fixed_access.log-20210307",
+            "fixed_access.log-20210308", "fixed_access.log-20210309",
+            "fixed_access.log-20210310", "fixed_access.log-20210311",
+            "fixed_access.log-20210312", "fixed_access.log-20210313",
+            "fixed_access.log-20210314", "fixed_access.log-20210315",
+            "fixed_access.log-20210316", "fixed_access.log-20210317",
+            "fixed_access.log-20210318", "fixed_access.log-20210319",
+            "fixed_access.log-20210320", "fixed_access.log-20210321",
+            "fixed_access.log-20210322", "fixed_access.log-20210323",
+            "fixed_access.log-20210324", "fixed_access.log-20210325",
+            "fixed_access.log-20210326", "fixed_access.log-20210327",
+            "fixed_access.log-20210328", "fixed_access.log-20210329",
+            "fixed_access.log-20210330", "fixed_access.log-20210331"]
 
     name = random.choice(logs)
-    url = f"https://raw.githubusercontent.com/Analytical-system-of-company-image/logs-parser/dev/test/logs/{name}"
+    url = f"https://raw.githubusercontent.com/Analytical-system-of-company-image/logs-parser/dev/tests/logs/{name}"
     return url
 
 
@@ -109,21 +110,21 @@ def parsing_logs(url_file: str, url_taker: Callable, size_chunk=500000):
     return result_logs
 
 
-def analyze_logs():
-    path = "good_logs:2023-07-08.csv"
+def analyze_logs(logs: List[str]) -> List[Dict[str, Any]]:
     logs_analyzer: LogsAnalyzer = LogsAnalyzer()
 
-    logs = pd.read_csv(path)
-    logs.columns = ["IP", "USER", "REQ", "RES", "BYTESENT",
-                    "REFERRER", "BROWSER", "TIME", "ZONE", "DATE"]
-    logs["DATE"] = logs["DATE"] + "T" + logs["TIME"]
-    logs["DATE"] = pd.to_datetime(
-        logs["DATE"], format="%Y-%m-%dT%H:%M:%S", errors="coerce")
-    logs["TIME"] = logs["DATE"].copy()
-    logs = logs[~logs["DATE"].isna()]
+    df_logs = pd.DataFrame(logs)
+    df_logs.columns = ["IP", "USER", "REQ", "RES", "BYTESENT",
+                       "REFERRER", "BROWSER", "TIME", "ZONE", "DATE"]
+    df_logs["DATE"] = df_logs["DATE"] + "T" + df_logs["TIME"]
+    df_logs["DATE"] = pd.to_datetime(
+        df_logs["DATE"], format="%Y-%m-%dT%H:%M:%S", errors="coerce")
+    df_logs["TIME"] = df_logs["DATE"].copy()
+    df_logs = df_logs[~df_logs["DATE"].isna()]
+    df_logs["RES"] = df_logs["RES"].astype(int)
 
-    logs.sort_values(by='DATE', inplace=True)
+    df_logs.sort_values(by='DATE', inplace=True)
 
-    grades = logs_analyzer.analyze(logs)
+    grades = logs_analyzer.analyze(df_logs)
 
-    grades.to_csv("grades.csv", index=False)
+    return grades.to_dict("records")
