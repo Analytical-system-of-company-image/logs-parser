@@ -143,15 +143,19 @@ class LogsAnalyzer:
 
         results = []
 
-        for i in tqdm(range(len(dates)-1)):
-            condition = (df['DATE'] == dates[i]) | (df['DATE'] == dates[i+1])
+        for i in tqdm(range(len(dates))):
+            try:
+                condition = (df['DATE'] == dates[i]) | (df['DATE'] == dates[i+1])
+            except IndexError as _:
+                condition = df['DATE'] == dates[i]
+
             sub_df = df[condition]
             x1 = self.__unique_hits_per_day(sub_df)
             x2 = self.__unique_hits_per_day_crawlers(sub_df)
             x3 = self.__regional_interest(sub_df)
             x4 = self.__time_interests(sub_df)
             x5 = self.__bad_requests(sub_df)
-            sub_list = [dates[i+1], x1, x2, x3, x4, x5]
+            sub_list = [dates[i], x1, x2, x3, x4, x5]
             results.append(sub_list)
         res_df = DataFrame(results)
         w1 = w2 = w3 = w4 = w5 = 1
