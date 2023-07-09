@@ -1,6 +1,7 @@
 import datetime
 import os
 from datetime import datetime
+from pathlib import Path
 from typing import List
 
 import IP2Location
@@ -51,8 +52,9 @@ class LogsAnalyzer:
         df = df.copy()
         df = df[df['RES'] == 200]
         df = df[~df['BROWSER'].str.contains('bot')]
+        resource_path = Path(__file__).parent
         ip2loc_obj = IP2Location.IP2Location(
-            f"{os.getcwd()}/logs_parser/analyzer/data/IP2LOCATION-LITE-DB11.BIN")
+            f"{resource_path}/data/IP2LOCATION-LITE-DB11.BIN")
         group_by_area = df.loc[:, ['IP', 'TIME']]
         group_by_area['COUNTRY'] = [ip2loc_obj.get_country_short(i)
                                     for i in group_by_area['IP']]
