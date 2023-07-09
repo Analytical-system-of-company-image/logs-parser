@@ -15,7 +15,7 @@ from logs_parser.parser.filter import (ConditionCss, ConditionFilterAbstract,
                                        ConditionSvg, ConditionWoff, Filter)
 from logs_parser.parser.logs_reader import read_logs
 from logs_parser.parser.logs_writer import AbstractWriter, CSVWriter
-from logs_parser.parser.parser import AbstractParser, CommonLogsParser
+from logs_parser.parser.parser import AbstractParser, CommonLogsParser, SlowCommonLogsParser
 
 
 def extract_random_logs() -> str:
@@ -98,6 +98,41 @@ def parsing_logs(url_file: str, url_taker: Callable, size_chunk=500000):
     logs_filter = Filter(conditions)
 
     commonLogsParser: AbstractParser = CommonLogsParser(logs_filter)
+    result_logs = []
+    with tempfile.TemporaryDirectory() as tmpdirname:
+
+        path_to_file = url_taker(url_file, tmpdirname)
+        for chunk_logs in tqdm(read_logs(path_to_file, size_chunk)):
+            parsed_logs = commonLogsParser.parsefile(chunk_logs)
+            tmp_logs = parsed_logs.get_good_logs()
+            result_logs.extend([log.asdict() for log in tmp_logs])
+            del parsed_logs, tmp_logs
+    return result_logs
+
+
+def slow_parsing_logs(url_file: str, url_taker: Callable, size_chunk=500000):
+    """Медленный парсинг файла с Логами
+
+    Args:
+        path_to_file (str): Путь к Файлу
+        size_chunk (int, optional): Размер пакета. Defaults to 500000.
+    """
+    logging.basicConfig(level=logging.DEBUG,
+                        filename='parsing_logs.log', filemode='w')
+    wr: AbstractWriter = CSVWriter()
+    conditions: List[ConditionFilterAbstract] = []
+    conditions.append(ConditionPhp())
+    conditions.append(ConditionPng())
+    conditions.append(ConditionSvg())
+    conditions.append(ConditionJs())
+    conditions.append(ConditionCss())
+    conditions.append(ConditionPost())
+    conditions.append(ConditionWoff())
+    conditions.append(ConditionGz())
+    conditions.append(ConditionHead())
+    logs_filter = Filter(conditions)
+
+    commonLogsParser: AbstractParser = SlowCommonLogsParser(logs_filter)
     result_logs = []
     with tempfile.TemporaryDirectory() as tmpdirname:
 
